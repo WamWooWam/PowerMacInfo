@@ -25,10 +25,8 @@ public class InfoCollector {
             = "https://di-api.reincubate.com/v1/apple-serials/%s/";
     private static final Path DEVICE_TREE
             = Path.of("/proc/device-tree");
-    ;
     private static final Path WINDFARM
             = Path.of("/sys/devices/platform/windfarm.0");
-    ;
     private final List<CPUInfo> cpus;
     private final List<MemoryBankInfo> memBanks;
     private final List<String> gpus;
@@ -80,7 +78,7 @@ public class InfoCollector {
 
             client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                     .thenApply(response -> {
-                        if(response.statusCode() != 200)
+                        if (response.statusCode() != 200)
                             throw new CompletionException(new Exception("Invalid response code!"));
                         return response;
                     })
@@ -89,8 +87,7 @@ public class InfoCollector {
                         var json = new JSONObject(body);
                         displayModel = json.getJSONObject("configurationCode").getString("skuHint");
                     });
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -192,7 +189,7 @@ public class InfoCollector {
         double cpuPower = 0;
 
         for (var sensor : sensors) {
-            if(sensor.getLocation() == SensorLocation.CPU) {
+            if (sensor.getLocation() == SensorLocation.CPU) {
                 if (sensor.getType() == SensorType.TEMPERATURE)
                     cpuTemp += Double.parseDouble(sensor.getValue());
                 if (sensor.getType() == SensorType.POWER)
@@ -335,19 +332,19 @@ public class InfoCollector {
             if (sensors.size() == 0 && hasWindfarm) {
                 for (int i = 0; i < cpus.size(); i++) {
                     addSensorIfExists(SensorType.TEMPERATURE, SensorLocation.CPU, "cpu-temp-" + i);
-                    addSensorIfExists(SensorType.POWER, SensorLocation.CPU,"cpu-power-" + i);
+                    addSensorIfExists(SensorType.POWER, SensorLocation.CPU, "cpu-power-" + i);
                     addSensorIfExists(SensorType.CURRENT, SensorLocation.CPU, "cpu-current-" + i);
-                    addSensorIfExists(SensorType.VOLTAGE, SensorLocation.CPU,"cpu-voltage-" + i);
-                    addSensorIfExists(SensorType.FAN_SPEED, SensorLocation.CPU,"cpu-rear-fan-" + i);
-                    addSensorIfExists(SensorType.FAN_SPEED, SensorLocation.CPU,"cpu-front-fan-" + i);
+                    addSensorIfExists(SensorType.VOLTAGE, SensorLocation.CPU, "cpu-voltage-" + i);
+                    addSensorIfExists(SensorType.FAN_SPEED, SensorLocation.CPU, "cpu-rear-fan-" + i);
+                    addSensorIfExists(SensorType.FAN_SPEED, SensorLocation.CPU, "cpu-front-fan-" + i);
                 }
 
-                addSensorIfExists(SensorType.FAN_SPEED, SensorLocation.DISK,"drive-bay-fan");
-                addSensorIfExists(SensorType.TEMPERATURE, SensorLocation.DISK,"hd-temp");
-                addSensorIfExists(SensorType.FAN_SPEED, SensorLocation.GENERIC,"backside-fan");
-                addSensorIfExists(SensorType.TEMPERATURE, SensorLocation.GENERIC,"backside-temp");
-                addSensorIfExists(SensorType.FAN_SPEED, SensorLocation.SLOTS,"slots-fan");
-                addSensorIfExists(SensorType.POWER, SensorLocation.SLOTS,"slots-power");
+                addSensorIfExists(SensorType.FAN_SPEED, SensorLocation.DISK, "drive-bay-fan");
+                addSensorIfExists(SensorType.TEMPERATURE, SensorLocation.DISK, "hd-temp");
+                addSensorIfExists(SensorType.FAN_SPEED, SensorLocation.GENERIC, "backside-fan");
+                addSensorIfExists(SensorType.TEMPERATURE, SensorLocation.GENERIC, "backside-temp");
+                addSensorIfExists(SensorType.FAN_SPEED, SensorLocation.SLOTS, "slots-fan");
+                addSensorIfExists(SensorType.POWER, SensorLocation.SLOTS, "slots-power");
             }
 
             for (var sensor : sensors)

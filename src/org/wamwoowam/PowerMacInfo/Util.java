@@ -10,7 +10,7 @@ public class Util {
             return String.format("%dMiB", sizeMB);
 
         final DecimalFormat f = new DecimalFormat("0.##");
-        return String.format("%sGiB", f.format((double)sizeMB / 1024));
+        return String.format("%sGiB", f.format((double) sizeMB / 1024));
     }
 
     public static String formatSpeed(long speed) {

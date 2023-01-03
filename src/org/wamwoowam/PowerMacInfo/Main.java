@@ -36,16 +36,15 @@ public class Main extends JavaPlugin {
         if (command.getName().equalsIgnoreCase("system")) {
 
             var list = new ArrayList<String>();
-            list.add(String.format("--- %s%s%s ---", ChatColor.BOLD, info.getDisplayModel(),ChatColor.RESET));
+            list.add(String.format("--- %s%s%s ---", ChatColor.BOLD, info.getDisplayModel(), ChatColor.RESET));
             list.add(String.format("%sCPU:%s %s", ChatColor.BOLD, ChatColor.RESET, info.getCPU()));
             list.add(String.format("%sRAM:%s %s", ChatColor.BOLD, ChatColor.RESET, info.getMemory()));
 
             var gpus = info.getGPUs();
-            if(gpus.length > 0) {
-                if(gpus.length == 1) {
+            if (gpus.length > 0) {
+                if (gpus.length == 1) {
                     list.add(String.format("%sGPU:%s %s", ChatColor.BOLD, ChatColor.RESET, gpus[0]));
-                }
-                else {
+                } else {
                     for (int i = 0; i < gpus.length; i++) {
                         list.add(String.format("%sGPU%d:%s %s", ChatColor.BOLD, i, ChatColor.RESET, gpus[i]));
                     }

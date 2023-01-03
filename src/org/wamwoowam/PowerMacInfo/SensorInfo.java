@@ -5,9 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class SensorInfo {
-    private SensorType type;
-    private SensorLocation location;
-    private Path path;
+    private final SensorType type;
+    private final SensorLocation location;
+    private final Path path;
     private String value;
 
     public SensorInfo(SensorType type, SensorLocation location, Path path) {
