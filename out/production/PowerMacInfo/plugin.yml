@@ -1,0 +1,9 @@
+name: PowerMacInfo
+version: 1.0
+author: WamWooWam
+main: org.wamwoowam.PowerMacInfo.Main
+load: STARTUP
+commands:
+  system:
+    description: Provides information on the current system
+    usage: /<command>
