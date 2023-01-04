@@ -21,12 +21,9 @@ import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 public class InfoCollector {
-    private static final String LOOKUP_API_FORMAT
-            = "https://di-api.reincubate.com/v1/apple-serials/%s/";
-    private static final Path DEVICE_TREE
-            = Path.of("/proc/device-tree");
-    private static final Path WINDFARM
-            = Path.of("/sys/devices/platform/windfarm.0");
+    private static final String LOOKUP_API_FORMAT = "https://di-api.reincubate.com/v1/apple-serials/%s/";
+    private static final Path DEVICE_TREE = Path.of("/proc/device-tree");
+    private static final Path WINDFARM = Path.of("/sys/devices/platform/windfarm.0");
     private final List<CPUInfo> cpus;
     private final List<MemoryBankInfo> memBanks;
     private final List<String> gpus;
@@ -47,8 +44,7 @@ public class InfoCollector {
     }
 
     public boolean init(Plugin plugin) {
-        if (!Files.exists(DEVICE_TREE))
-            return false;
+        if (!Files.exists(DEVICE_TREE)) return false;
 
         hasWindfarm = Files.exists(WINDFARM);
 
@@ -72,21 +68,16 @@ public class InfoCollector {
 
         try {
             var client = HttpClient.newHttpClient();
-            var request = HttpRequest.newBuilder(URI.create(String.format(LOOKUP_API_FORMAT, getSerialNumber())))
-                    .timeout(Duration.ofSeconds(5))
-                    .build();
+            var request = HttpRequest.newBuilder(URI.create(String.format(LOOKUP_API_FORMAT, getSerialNumber()))).timeout(Duration.ofSeconds(5)).build();
 
-            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenApply(response -> {
-                        if (response.statusCode() != 200)
-                            throw new CompletionException(new Exception("Invalid response code!"));
-                        return response;
-                    })
-                    .thenApply(HttpResponse::body)
-                    .thenAccept(body -> {
-                        var json = new JSONObject(body);
-                        displayModel = json.getJSONObject("configurationCode").getString("skuHint");
-                    });
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(response -> {
+                if (response.statusCode() != 200)
+                    throw new CompletionException(new Exception("Invalid response code!"));
+                return response;
+            }).thenApply(HttpResponse::body).thenAccept(body -> {
+                var json = new JSONObject(body);
+                displayModel = json.getJSONObject("configurationCode").getString("skuHint");
+            });
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -110,15 +101,12 @@ public class InfoCollector {
         try {
             var rawSerial = Files.readAllBytes(DEVICE_TREE.resolve("serial-number"));
             int x = 0;
-            while (rawSerial[x] != 0)
-                x++;
+            while (rawSerial[x] != 0) x++;
 
-            while (rawSerial[x] == 0)
-                x++;
+            while (rawSerial[x] == 0) x++;
 
             int y = x;
-            while (rawSerial[y] != 0)
-                y++;
+            while (rawSerial[y] != 0) y++;
 
             return new String(rawSerial, x, y - x);
         } catch (IOException e) {
@@ -141,8 +129,7 @@ public class InfoCollector {
     }
 
     public String getMemory() {
-        var groups = memBanks.stream()
-                .collect(Collectors.groupingBy((MemoryBankInfo p) -> p.getSize() + " " + p.getDIMMSpeed()));
+        var groups = memBanks.stream().collect(Collectors.groupingBy((MemoryBankInfo p) -> p.getSize() + " " + p.getDIMMSpeed()));
 
         var groupStrings = new ArrayList<String>();
         for (var group : groups.values()) {
@@ -153,10 +140,7 @@ public class InfoCollector {
         for (var bank : memBanks)
             totalSize += bank.getSize();
 
-        return String.format("%s %s (%s)",
-                Util.formatSize(totalSize),
-                memBanks.get(0).getDIMMType(),
-                String.join(", ", groupStrings));
+        return String.format("%s %s (%s)", Util.formatSize(totalSize), memBanks.get(0).getDIMMType(), String.join(", ", groupStrings));
     }
 
     public String[] getMemoryBanks() {
@@ -190,10 +174,8 @@ public class InfoCollector {
 
         for (var sensor : sensors) {
             if (sensor.getLocation() == SensorLocation.CPU) {
-                if (sensor.getType() == SensorType.TEMPERATURE)
-                    cpuTemp += Double.parseDouble(sensor.getValue());
-                if (sensor.getType() == SensorType.POWER)
-                    cpuPower += Double.parseDouble(sensor.getValue());
+                if (sensor.getType() == SensorType.TEMPERATURE) cpuTemp += Double.parseDouble(sensor.getValue());
+                if (sensor.getType() == SensorType.POWER) cpuPower += Double.parseDouble(sensor.getValue());
             }
         }
 
@@ -232,12 +214,9 @@ public class InfoCollector {
                     cpuName = cpuName.substring(0, x);
                 }
 
-                if (cpuName.matches("740/750"))
-                    cpuName = String.format("PowerPC G3 (%s)", cpuName);
-                else if (cpuName.matches("^74.+"))
-                    cpuName = String.format("PowerPC G4 (%s)", cpuName);
-                else if (cpuName.matches("^(PPC)*9.+"))
-                    cpuName = String.format("PowerPC G5 (%s)", cpuName);
+                if (cpuName.matches("740/750")) cpuName = String.format("PowerPC G3 (%s)", cpuName);
+                else if (cpuName.matches("^74.+")) cpuName = String.format("PowerPC G4 (%s)", cpuName);
+                else if (cpuName.matches("^(PPC)*9.+")) cpuName = String.format("PowerPC G5 (%s)", cpuName);
             }
 
             if (line.startsWith("clock")) {
@@ -247,8 +226,7 @@ public class InfoCollector {
             if (line.startsWith("detected as")) {
                 if (value.indexOf('(') != -1)
                     displayModel = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-                else
-                    displayModel = value;
+                else displayModel = value;
             }
         }
     }
@@ -290,8 +268,7 @@ public class InfoCollector {
 
             String line;
             while ((line = is.readLine()) != null) {
-                if (!line.startsWith("total"))
-                    continue;
+                if (!line.startsWith("total")) continue;
 
                 String[] split = line.replaceAll("\\s+", "_").split("_");
                 diskCache = String.format("%sB/%sB", split[2], split[1]);
@@ -309,15 +286,13 @@ public class InfoCollector {
 
             String line;
             while ((line = is.readLine()) != null) {
-                if (!line.contains("VGA compatible controller"))
-                    continue;
+                if (!line.contains("VGA compatible controller")) continue;
 
                 line = line.substring(10);
 
                 var idx = line.indexOf(':') + 2;
                 var endIdx = line.indexOf('(');
-                if (endIdx == -1)
-                    endIdx = line.length();
+                if (endIdx == -1) endIdx = line.length();
 
                 gpus.add(line.substring(idx, endIdx));
             }
@@ -357,8 +332,7 @@ public class InfoCollector {
     private void addSensorIfExists(SensorType type, SensorLocation location, String sensor) {
         var path = WINDFARM.resolve(sensor);
 
-        if (Files.exists(path))
-            sensors.add(new SensorInfo(type, location, path));
+        if (Files.exists(path)) sensors.add(new SensorInfo(type, location, path));
     }
 
     // cleans a string retrieved from the Device Tree
@@ -368,19 +342,15 @@ public class InfoCollector {
 
     private long getSize(ByteBuffer sizeBuff) {
         long size;
-        if (sizeCells == 2)
-            size = sizeBuff.getLong();
-        else
-            size = (long) sizeBuff.getInt() & 0xffffffffL;
+        if (sizeCells == 2) size = sizeBuff.getLong();
+        else size = (long) sizeBuff.getInt() & 0xffffffffL;
         return size;
     }
 
     private long getAddress(ByteBuffer addressBuf) {
         long address;
-        if (addressCells == 2)
-            address = addressBuf.getLong();
-        else
-            address = addressBuf.getInt() & 0xffffffffL;
+        if (addressCells == 2) address = addressBuf.getLong();
+        else address = addressBuf.getInt() & 0xffffffffL;
         return address;
     }
 }
